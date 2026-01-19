@@ -1,0 +1,6 @@
+@backEndGamesTito.API_HostAddress = http://localhost:5034
+
+GET {{backEndGamesTito.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
