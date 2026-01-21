@@ -15,5 +15,10 @@ namespace backEndGamesTito.API.Data.Models
         public DateTime DataCriacao { get; set; }
         public DateTime? DataAtualizacao { get; set; }
         public int StatusId { get; set; }
+
+        public string? ResetToken { get; set; }
+
+        // Usamos 'DateTime?' (nullable)
+        public DateTime? ResetTokenExpiry { get; set; }
     }
 }

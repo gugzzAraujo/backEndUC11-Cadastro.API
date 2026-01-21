@@ -85,5 +85,69 @@ namespace backEndGamesTito.API.Repositories
                 return null;
             }
         }
+
+
+        // Método para atualizar a senha do usuário
+
+        public async Task UpdatePasswordAsync(int usuarioId, string newPassWordHash, string newHashPass)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                var commandText = @"
+            UPDATE dbo.Usuario
+            SET 
+                PassWordHash = @PassWordHash,
+                HashPass = @HashPass,
+                DataAtualizacao = @DataAtualizacao
+            WHERE UsuarioId = @UsuarioId";
+
+                using (var command = new SqlCommand(commandText, connection))
+                {
+                    command.Parameters.AddWithValue("@UsuarioId", usuarioId);
+                    command.Parameters.AddWithValue("@PassWordHash", newPassWordHash);
+                    command.Parameters.AddWithValue("@HashPass", newHashPass);
+                    command.Parameters.AddWithValue("@DataAtualizacao", DateTime.Now);
+
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+        // Salva o token gerado e define expiração de 15 minutos
+        public async Task SaveResetTokenAsync(int usuarioId, string token)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var commandText = "UPDATE dbo.Usuario SET ResetToken = @Token, ResetTokenExpiry = @Expiry WHERE UsuarioId = @Id";
+
+                using (var command = new SqlCommand(commandText, connection))
+                {
+                    command.Parameters.AddWithValue("@Token", token);
+                    command.Parameters.AddWithValue("@Expiry", DateTime.Now.AddMinutes(15));
+                    command.Parameters.AddWithValue("@Id", usuarioId);
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+        // Limpa o token após o uso (para que não seja usado 2 vezes)
+        public async Task ClearResetTokenAsync(int usuarioId)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var commandText = "UPDATE dbo.Usuario SET ResetToken = NULL, ResetTokenExpiry = NULL WHERE UsuarioId = @Id";
+
+                using (var command = new SqlCommand(commandText, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", usuarioId);
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
     }
 }
